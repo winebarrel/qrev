@@ -1,6 +1,10 @@
 package driver
 
-import "database/sql"
+import (
+	"database/sql"
+
+	_ "modernc.org/sqlite"
+)
 
 type SQLite struct {
 	DSN string
