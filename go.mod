@@ -12,7 +12,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/mattn/go-isatty v0.0.20
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.11.1
 	modernc.org/sqlite v1.39.0
 )
 
