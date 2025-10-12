@@ -22,19 +22,20 @@ Flags:
 
 Commands:
   apply --dsn=STRING [<path>] [flags]
-    TODO
+    Apply SQL files to the database and record their execution history.
 
   init --dsn=STRING [flags]
-    TODO
+    Initialize the SQL execution history table in the database.
 
   mark --dsn=STRING <status> <name> [flags]
-    TODO
+    Manually mark the status of a SQL file (e.g., done, fail) in the history.
 
   plan --dsn=STRING [<path>] [flags]
-    TODO
+    Show the list of SQL files that are planned to be executed.
 
   status --dsn=STRING [<status-or-filename>] [flags]
-    TODO
+    Display the execution status of SQL files, optionally filtered by status or
+    filename.
 
 Run "qrev <command> --help" for more information on a command.
 ```
