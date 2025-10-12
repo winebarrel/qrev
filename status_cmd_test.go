@@ -40,9 +40,9 @@ func TestStatusCmd_OK(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`10 Oct 21:25 fail bc123a6 20251012-delete-old-data.sql
-10 Oct 21:23 done 123abc4 20251010-init-table.sql
-10 Oct 20:20 skip c123ab5 20251011-update-data.sql
+	assert.Equal(`Oct 10 21:25 fail bc123a6 20251012-delete-old-data.sql
+Oct 10 21:23 done 123abc4 20251010-init-table.sql
+Oct 10 20:20 skip c123ab5 20251011-update-data.sql
 `, buf.String())
 }
 
@@ -62,8 +62,8 @@ func TestStatusCmd_WithCount(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`10 Oct 21:25 fail bc123a6 20251012-delete-old-data.sql
-10 Oct 21:23 done 123abc4 20251010-init-table.sql
+	assert.Equal(`Oct 10 21:25 fail bc123a6 20251012-delete-old-data.sql
+Oct 10 21:23 done 123abc4 20251010-init-table.sql
 `, buf.String())
 }
 
@@ -83,11 +83,11 @@ func TestStatusCmd_ShowError(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`10 Oct 21:25 fail bc123a6 20251012-delete-old-data.sql
+	assert.Equal(`Oct 10 21:25 fail bc123a6 20251012-delete-old-data.sql
 │ error:
 │ test.go:10
-10 Oct 21:23 done 123abc4 20251010-init-table.sql
-10 Oct 20:20 skip c123ab5 20251011-update-data.sql
+Oct 10 21:23 done 123abc4 20251010-init-table.sql
+Oct 10 20:20 skip c123ab5 20251011-update-data.sql
 `, buf.String())
 }
 
@@ -106,9 +106,9 @@ func TestStatusCmd_WithStatus(t *testing.T) {
 		status   string
 		expected string
 	}{
-		{status: "done", expected: "10 Oct 21:23 done 123abc4 20251010-init-table.sql\n"},
-		{status: "skip", expected: "10 Oct 20:20 skip c123ab5 20251011-update-data.sql\n"},
-		{status: "fail", expected: "10 Oct 21:25 fail bc123a6 20251012-delete-old-data.sql\n"},
+		{status: "done", expected: "Oct 10 21:23 done 123abc4 20251010-init-table.sql\n"},
+		{status: "skip", expected: "Oct 10 20:20 skip c123ab5 20251011-update-data.sql\n"},
+		{status: "fail", expected: "Oct 10 21:25 fail bc123a6 20251012-delete-old-data.sql\n"},
 	}
 
 	for _, test := range tests {
@@ -137,9 +137,9 @@ func TestStatusCmd_WithFilename(t *testing.T) {
 		filename string
 		expected string
 	}{
-		{filename: "20251010-init-table.sql", expected: "10 Oct 21:23 done 123abc4 20251010-init-table.sql\n"},
-		{filename: "20251011-update-data.sql", expected: "10 Oct 20:20 skip c123ab5 20251011-update-data.sql\n"},
-		{filename: "20251012-delete-old-data.sql", expected: "10 Oct 21:25 fail bc123a6 20251012-delete-old-data.sql\n"},
+		{filename: "20251010-init-table.sql", expected: "Oct 10 21:23 done 123abc4 20251010-init-table.sql\n"},
+		{filename: "20251011-update-data.sql", expected: "Oct 10 20:20 skip c123ab5 20251011-update-data.sql\n"},
+		{filename: "20251012-delete-old-data.sql", expected: "Oct 10 21:25 fail bc123a6 20251012-delete-old-data.sql\n"},
 	}
 
 	for _, test := range tests {

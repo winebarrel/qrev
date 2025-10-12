@@ -70,8 +70,8 @@ fail 002.sql SELECT now()
 qrev: error: SQL fails
 
 $ qrev status --show-error
-12 Oct 15:40 done a0a22c9 001.sql
-12 Oct 15:40 fail df4776a 002.sql
+Oct 12 15:40 done a0a22c9 001.sql
+Oct 12 15:40 fail df4776a 002.sql
 │ SQL logic error: no such function: now (1)
 
 $ qrev plan --if-modified
@@ -90,7 +90,7 @@ $ qrev apply --if-modified
 No SQL file to run
 
 $ qrev status
-12 Oct 15:40 done a0a22c9 001.sql
-12 Oct 15:40 done 45fb14e 002.sql
-12 Oct 15:40 done e8d881b 003.sql
+Oct 12 15:40 done a0a22c9 001.sql
+Oct 12 15:40 done 45fb14e 002.sql
+Oct 12 15:40 done e8d881b 003.sql
 ```

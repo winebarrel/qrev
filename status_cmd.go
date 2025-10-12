@@ -62,7 +62,7 @@ func (cmd *StatusCmd) Run(options *Options) error {
 
 		t, _ := time.Parse(time.RFC3339, executedAt)
 		fmt.Fprintln(options.Output,
-			t.Local().Format("02 Jan 15:04"), status.Color(), hash[:7], filename)
+			t.Local().Format("Jan 02 15:04"), status.Color(), hash[:7], filename)
 
 		if cmd.ShowError && lastError != "" {
 			fmt.Fprintln(options.Output, util.FormatError(lastError))
