@@ -7,6 +7,12 @@ qrev is a SQL execution history management tool.
 
 ![](https://github.com/user-attachments/assets/288d0ef9-a0cf-437a-95c2-2f6c43e7c449)
 
+## Installation
+
+```sh
+brew install winebarrel/qrev/qrev
+```
+
 ## Usage
 
 ```
