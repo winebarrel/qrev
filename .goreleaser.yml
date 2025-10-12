@@ -1,0 +1,38 @@
+version: 2
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - main: ./cmd/qrev
+    ldflags:
+      - -X main.version={{.Version}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+checksum:
+  name_template: "checksums.txt"
+homebrew_casks:
+  - repository:
+      owner: winebarrel
+      name: homebrew-qrev
+    homepage: https://github.com/winebarrel/qrev
+    description: qrev is a SQL execution history management tool.
+    license: MIT
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/qrev"]
+          end
+nfpms:
+  - file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}"
+    homepage: https://github.com/winebarrel/qrev
+    description: qrev is a SQL execution history management tool.
+    license: MIT
+    maintainer: "Genki Sugawara <sugawara@winebarrel.jp>"
+    formats:
+      - apk
+      - deb
+      - rpm
