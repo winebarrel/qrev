@@ -102,7 +102,6 @@ func plan(db *sql.DB, files []*util.File, options *planOptions) ([]*util.File, e
 				continue
 			}
 
-			fmt.Println(sel.MustSql())
 			return nil, fmt.Errorf("failed to fetch SQL history: %w", err)
 		}
 
