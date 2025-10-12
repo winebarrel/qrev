@@ -76,9 +76,9 @@ done 20251012-delete-old-data.sql select 3
 		},
 		{
 			cmd: &qrev.StatusCmd{},
-			regexp: regexp.MustCompile(`\d+ \w+ \d+:\d+ done 822ae07 20251010-init-table.sql
-\d+ \w+ \d+:\d+ done 3cf988c 20251011-update-data.sql
-\d+ \w+ \d+:\d+ done 3efaf2f 20251012-delete-old-data.sql
+			regexp: regexp.MustCompile(`\w+ \d+ \d+:\d+ done 822ae07 20251010-init-table.sql
+\w+ \d+ \d+:\d+ done 3cf988c 20251011-update-data.sql
+\w+ \d+ \d+:\d+ done 3efaf2f 20251012-delete-old-data.sql
 `),
 		},
 	}
