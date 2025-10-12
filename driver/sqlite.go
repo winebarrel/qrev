@@ -1,0 +1,15 @@
+package driver
+
+import (
+	"database/sql"
+
+	_ "modernc.org/sqlite"
+)
+
+type SQLite struct {
+	DSN string
+}
+
+func (dri *SQLite) Open() (*sql.DB, error) {
+	return sql.Open("sqlite", dri.DSN)
+}
