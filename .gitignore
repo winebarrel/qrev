@@ -34,3 +34,4 @@ go.work.sum
 /qrev
 *.db
 /*.sql
+/demo.gif

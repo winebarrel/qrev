@@ -21,7 +21,8 @@ testacc:
 lint:
 	golangci-lint run
 
-# .PHONY: demo
-# # see https://github.com/charmbracelet/vhs
-# demo:
-# 	vhs demo.tape
+.PHONY: demo
+# see https://github.com/charmbracelet/vhs
+demo:
+	rm -f test.db
+	vhs demo.tape
