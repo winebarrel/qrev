@@ -13,11 +13,11 @@ var cli struct {
 	qrev.Options
 	Version kong.VersionFlag
 
-	Apply  qrev.ApplyCmd  `cmd:"" help:"TODO"`
-	Init   qrev.InitCmd   `cmd:"" help:"TODO"`
-	Mark   qrev.MarkCmd   `cmd:"" help:"TODO"`
-	Plan   qrev.PlanCmd   `cmd:"" help:"TODO"`
-	Status qrev.StatusCmd `cmd:"" help:"TODO"`
+	Apply  qrev.ApplyCmd  `cmd:"" help:"Apply SQL files to the database and record their execution history."`
+	Init   qrev.InitCmd   `cmd:"" help:"Initialize the SQL execution history table in the database."`
+	Mark   qrev.MarkCmd   `cmd:"" help:"Manually mark the status of a SQL file (e.g., done, fail) in the history."`
+	Plan   qrev.PlanCmd   `cmd:"" help:"Show the list of SQL files that are planned to be executed."`
+	Status qrev.StatusCmd `cmd:"" help:"Display the execution status of SQL files, optionally filtered by status or filename."`
 }
 
 func main() {
