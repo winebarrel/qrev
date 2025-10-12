@@ -10,8 +10,7 @@ import (
 )
 
 func WithTx(db *sql.DB, timeout time.Duration, cb func(context.Context, *sql.Tx) error) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	ctx, cancel = context.WithTimeout(ctx, timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 
 	// Trap SIGINT
 	{
