@@ -13,8 +13,7 @@ func TestPathsToFiles_OK(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	tempDir := t.TempDir()
-	t.Chdir(tempDir)
+	t.Chdir(t.TempDir())
 	os.WriteFile("20251012-delete-old-data.sql", []byte("select 3"), 0400)
 	os.WriteFile("20251011-update-data.sql", []byte("select 2"), 0400)
 	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
@@ -53,8 +52,7 @@ func TestFile_Read(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	tempDir := t.TempDir()
-	t.Chdir(tempDir)
+	t.Chdir(t.TempDir())
 	os.WriteFile("20251012-delete-old-data.sql", []byte("select 3"), 0400)
 	os.WriteFile("20251011-update-data.sql", []byte("select 2"), 0400)
 	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
@@ -80,8 +78,7 @@ func TestFile_Head(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	tempDir := t.TempDir()
-	t.Chdir(tempDir)
+	t.Chdir(t.TempDir())
 	os.WriteFile("20251012-delete-old-data.sql", []byte("select\n3"), 0400)
 	os.WriteFile("20251011-update-data.sql", []byte("select\n2"), 0400)
 	os.WriteFile("20251010-init-table.sql", []byte("select\n1"), 0400)
