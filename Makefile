@@ -24,5 +24,5 @@ lint:
 .PHONY: demo
 # see https://github.com/charmbracelet/vhs
 demo:
-	rm -f test.db
+	rm -f test.db *.sql
 	vhs demo.tape
