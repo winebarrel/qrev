@@ -94,3 +94,8 @@ Oct 12 15:40 done a0a22c9 001.sql
 Oct 12 15:40 done 45fb14e 002.sql
 Oct 12 15:40 done e8d881b 003.sql
 ```
+
+### DSN
+
+* MySQL: https://pkg.go.dev/github.com/go-sql-driver/mysql#readme-dsn-data-source-name
+* PostgreSQL: https://pkg.go.dev/github.com/jackc/pgx/v5/stdlib#pkg-overview
