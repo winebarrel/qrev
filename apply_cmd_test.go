@@ -305,7 +305,6 @@ fail 20251012-delete-old-data.sql **invalid**
 
 func TestApplyCmd_Timeout(t *testing.T) {
 	assert := assert.New(t)
-	//	require := require.New(t)
 
 	init := "insert into qrev_history (filename, hash, executed_at, execution_time, status, last_error) values " +
 		" ('20251010-init-table.sql',      '123abc456', '2025-10-10T12:23:00Z', 1, 'done', '')" +
@@ -334,4 +333,46 @@ func TestApplyCmd_Timeout(t *testing.T) {
 		"20251011-update-data.sql c123ab567 2025-10-10T11:20:00Z 2 skip ",
 		"20251012-delete-old-data.sql bc123a678 2025-10-10T12:25:00Z 3 fail error:\ntest.go:10\n",
 	}, testDumpDB(t, dri))
+}
+
+func TestApplyCmd_WithErr(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	dri := testDB(t)
+
+	tempDir := t.TempDir()
+	t.Chdir(tempDir)
+	os.WriteFile("20251010-create-table.sql", []byte("create table foo (id int not null)"), 0400)
+	os.WriteFile("20251011-insert-data-001.sql", []byte("insert into foo values (1)"), 0400)
+	os.WriteFile("20251012-insert-data-002.sql", []byte("insert into foo values (2); insert into foo values (null)"), 0400)
+	os.WriteFile("20251013-insert-data-003.sql", []byte("insert into foo values (3)"), 0400)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: dri, Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.ApplyCmd{Path: "*.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "SQL fails")
+
+	assert.Equal(`done 20251010-create-table.sql create table foo (id int not n
+done 20251011-insert-data-001.sql insert into foo values (1)
+fail 20251012-insert-data-002.sql insert into foo values (2); in
+│ constraint failed: NOT NULL constraint failed: foo.id (1299)
+`, buf.String())
+
+	assert.Equal([]string{
+		"20251010-create-table.sql 4e74d0d8df70bc4fc9839a52b593c27490c716495784733b5526c42fa7fde4fa done ",
+		"20251011-insert-data-001.sql 675c4cae421ac13e8f92575aadb58636bbc34ce1d6b46385264c18094e9b1f6d done ",
+		"20251012-insert-data-002.sql bb32e1f05edd4e5e3fceecc50ddfbe7bc0cbce03ca0da62b6e7812f0b71701ea fail constraint failed: NOT NULL constraint failed: foo.id (1299)",
+	}, testDumpDBWithoutTime(t, dri))
+
+	db, err := dri.Open()
+	require.NoError(err)
+	defer db.Close()
+	var ids string
+	err = db.QueryRow("select group_concat(id) from foo").Scan(&ids)
+	require.NoError(err)
+	assert.Equal("1", ids)
 }

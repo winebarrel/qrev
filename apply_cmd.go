@@ -69,6 +69,10 @@ func (cmd *ApplyCmd) Run(options *Options) error {
 	return nil
 }
 
+type sqlErr struct {
+	error
+}
+
 func apply(db *sql.DB, f *util.File, options *Options) error {
 	q, err := f.Read()
 
@@ -77,40 +81,39 @@ func apply(db *sql.DB, f *util.File, options *Options) error {
 	}
 
 	now := time.Now()
-	var targetSQLErr error
 
 	err = util.WithTx(db, options.Timeout, func(ctx context.Context, tx *sql.Tx) error {
 		_, err := tx.ExecContext(ctx, q)
 		dur := time.Since(now)
 
 		if err != nil {
-			targetSQLErr = err
-			return nil
+			return &sqlErr{error: err}
 		}
 
 		return upsertStatus(ctx, tx, f, now, dur, StatusDone, "")
 	})
 
 	if err != nil {
-		return err
-	}
+		var se *sqlErr
 
-	if targetSQLErr != nil {
-		err := util.WithTx(db, options.Timeout, func(ctx context.Context, tx *sql.Tx) error {
-			return upsertStatus(ctx, tx, f, now, -1, StatusFail, targetSQLErr.Error())
-		})
-
-		if err != nil {
+		if !errors.As(err, &se) {
 			return err
 		}
 
+		updStatErr := util.WithTx(db, options.Timeout, func(ctx context.Context, tx *sql.Tx) error {
+			return upsertStatus(ctx, tx, f, now, -1, StatusFail, se.Error())
+		})
+
+		if updStatErr != nil {
+			return errors.Join(err, updStatErr)
+		}
+
 		fmt.Fprintln(options.Output, StatusFail.Color(), f.Name, util.HeadContent(q))
-		fmt.Fprintln(options.Output, util.FormatError(targetSQLErr.Error()))
+		fmt.Fprintln(options.Output, util.FormatError(se.Error()))
 		return errors.New("SQL fails")
-	} else {
-		fmt.Fprintln(options.Output, StatusDone.Color(), f.Name, util.HeadContent(q))
 	}
 
+	fmt.Fprintln(options.Output, StatusDone.Color(), f.Name, util.HeadContent(q))
 	return nil
 }
 
