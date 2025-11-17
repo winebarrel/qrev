@@ -13,7 +13,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/mattn/go-isatty v0.0.20
 	github.com/stretchr/testify v1.11.1
-	modernc.org/sqlite v1.40.0
+	modernc.org/sqlite v1.40.1
 )
 
 require (
