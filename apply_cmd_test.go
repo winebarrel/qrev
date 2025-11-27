@@ -376,3 +376,38 @@ fail 20251012-insert-data-002.sql insert into foo values (2); in
 	require.NoError(err)
 	assert.Equal("1", ids)
 }
+
+func TestApplyCmd_Symlink(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	init := "insert into qrev_history (filename, hash, executed_at, execution_time, status, last_error) values " +
+		" ('20251010-init-table.sql',      '123abc456', '2025-10-10T12:23:00Z', 1, 'done', '')" +
+		",('20251011-update-data.sql',     'c123ab567', '2025-10-10T11:20:00Z', 2, 'skip', '')" +
+		",('20251012-delete-old-data.sql', 'bc123a678', '2025-10-10T12:25:00Z', 3, 'fail', 'error:' || char(10) || 'test.go:10' || char(10))"
+	dri := testDB(t, init)
+
+	tempDir := t.TempDir()
+	t.Chdir(tempDir)
+	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
+	os.WriteFile("20251011-update-data.sql", []byte("select 2"), 0400)
+	os.WriteFile("20251012-delete-old-data.sql", []byte("select 3"), 0400)
+	os.Symlink("20251010-init-table.sql", "20251013-symlink.sql")
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: dri, Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.ApplyCmd{Path: "*.sql"}
+	err := cmd.Run(options)
+
+	require.NoError(err)
+	assert.Equal(`done 20251013-symlink.sql select 1
+`, buf.String())
+
+	assert.Equal([]string{
+		"20251010-init-table.sql 123abc456 done ",
+		"20251011-update-data.sql c123ab567 skip ",
+		"20251012-delete-old-data.sql bc123a678 fail error:\ntest.go:10\n",
+		"20251013-symlink.sql 822ae07d4783158bc1912bb623e5107cc9002d519e1143a9c200ed6ee18b6d0f done ",
+	}, testDumpDBWithoutTime(t, dri))
+}
