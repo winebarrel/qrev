@@ -455,12 +455,13 @@ func TestApplyCmd_WithBeforeSQL(t *testing.T) {
 	db, err := dri.Open()
 	require.NoError(err)
 	defer db.Close()
-	var n int
-	err = db.QueryRow("select count(*) from before_sql1").Scan(&n)
+	var n1, n2 int
+	err = db.QueryRow("select count(*) from before_sql1").Scan(&n1)
 	require.NoError(err)
-	err = db.QueryRow("select count(*) from before_sql2").Scan(&n)
+	err = db.QueryRow("select count(*) from before_sql2").Scan(&n2)
 	require.NoError(err)
-	assert.Equal(0, n)
+	assert.Equal(0, n1)
+	assert.Equal(0, n2)
 }
 
 func TestApplyCmd_WithBeforeSQLErr(t *testing.T) {
