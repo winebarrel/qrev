@@ -17,6 +17,7 @@ type ApplyCmd struct {
 	Path       string `arg:"" default:"*.sql" help:"Path of SQL files to run."`
 	IfModified bool   `xor:"status" help:"Run if file has modified"`
 	ForceRerun bool   `xor:"status" help:"Rerun any failed SQL files."`
+	BeforeSQL  string `help:"SQL statements to execute before applying."`
 }
 
 func (cmd *ApplyCmd) Run(options *Options) error {
@@ -59,7 +60,7 @@ func (cmd *ApplyCmd) Run(options *Options) error {
 	}
 
 	for _, t := range targets {
-		err := apply(db, t, options)
+		err := apply(db, t, cmd.BeforeSQL, options)
 
 		if err != nil {
 			return err
@@ -73,7 +74,7 @@ type sqlErr struct {
 	error
 }
 
-func apply(db *sql.DB, f *util.File, options *Options) error {
+func apply(db *sql.DB, f *util.File, beforeSQL string, options *Options) error {
 	q, err := f.Read()
 
 	if err != nil {
@@ -83,6 +84,14 @@ func apply(db *sql.DB, f *util.File, options *Options) error {
 	now := time.Now()
 
 	err = util.WithTx(db, options.Timeout, func(ctx context.Context, tx *sql.Tx) error {
+		if beforeSQL != "" {
+			_, err := tx.ExecContext(ctx, beforeSQL)
+
+			if err != nil {
+				return fmt.Errorf("failed to execute before-SQL: %w", err)
+			}
+		}
+
 		_, err := tx.ExecContext(ctx, q)
 		dur := time.Since(now)
 

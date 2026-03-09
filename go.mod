@@ -1,10 +1,10 @@
 module github.com/winebarrel/qrev
 
-go 1.25.1
+go 1.26
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/alecthomas/kong v1.13.0
+	github.com/alecthomas/kong v1.14.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.11
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.6.19
 	github.com/creack/pty v1.1.24
