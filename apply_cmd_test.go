@@ -498,3 +498,41 @@ func TestApplyCmd_WithBeforeSQLErr(t *testing.T) {
 		"20251012-delete-old-data.sql bc123a678 fail error:\ntest.go:10\n",
 	}, testDumpDBWithoutTime(t, dri))
 }
+
+func TestApplyCmd_Rollback(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	init := []string{
+		"create table foo (id int)",
+		"insert into foo (id) values (1), (2), (3)",
+	}
+	dri := testDB(t, init...)
+
+	tempDir := t.TempDir()
+	t.Chdir(tempDir)
+	os.WriteFile("20251010-update-data.sql", []byte("delete from foo; insert into foo (id) values (4); **invalid**"), 0400)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: dri, Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.ApplyCmd{Path: "*.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "SQL fails")
+	assert.Equal(`fail 20251010-update-data.sql delete from foo; insert into f
+│ SQL logic error: near "*": syntax error (1)
+`, buf.String())
+
+	assert.Equal([]string{
+		`20251010-update-data.sql e5dff7e490e119f0482bdb47ddaed6a0a01a0059b27a6a403ad46ab295f79abe fail SQL logic error: near "*": syntax error (1)`,
+	}, testDumpDBWithoutTime(t, dri))
+
+	db, err := dri.Open()
+	require.NoError(err)
+	defer db.Close()
+	var ids string
+	err = db.QueryRow("select group_concat(id) from foo").Scan(&ids)
+	require.NoError(err)
+	assert.Equal("1,2,3", ids)
+}
