@@ -34,7 +34,7 @@ Commands:
     Initialize the SQL execution history table in the database.
 
   mark --dsn=STRING <status> <name> [flags]
-    Manually mark the status of a SQL file (e.g., done, fail) in the history.
+    Manually mark the status of a SQL file (e.g., skip, fail) in the history.
 
   plan --dsn=STRING [<path>] [flags]
     Show the list of SQL files that are planned to be executed.
