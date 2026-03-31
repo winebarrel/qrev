@@ -5,7 +5,7 @@
 
 qrev is a SQL execution history management tool.
 
-![](https://github.com/user-attachments/assets/f7ef2da9-b140-4ac8-aeaa-fc5623c6ef3c)
+![](https://github.com/user-attachments/assets/9a4c6e99-25cd-49b8-99fd-8bbe3be9a72a)
 
 ## Installation
 
