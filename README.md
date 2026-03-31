@@ -93,6 +93,26 @@ $ qrev status
 Oct 12 15:40 done a0a22c9 001.sql
 Oct 12 15:40 done 45fb14e 002.sql
 Oct 12 15:40 done e8d881b 003.sql
+
+$ echo 'SELECT now' > 004.sql
+$ qrev apply
+│ SQL logic error: no such function: now (1)
+qrev: error: SQL fails
+
+$ qrev status
+Oct 12 15:43 fail 8ac4c8a 004.sql
+Oct 12 15:40 done a0a22c9 001.sql
+Oct 12 15:40 done 45fb14e 002.sql
+Oct 12 15:40 done e8d881b 003.sql
+
+$ qrev mark skip 004.sql
+skip 004.sql
+
+$ qrev status
+Oct 12 15:43 skip 8ac4c8a 004.sql
+Oct 12 15:40 done a0a22c9 001.sql
+Oct 12 15:40 done 45fb14e 002.sql
+Oct 12 15:40 done e8d881b 003.sql
 ```
 
 ### DSN
