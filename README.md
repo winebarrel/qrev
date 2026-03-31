@@ -5,7 +5,7 @@
 
 qrev is a SQL execution history management tool.
 
-![](https://github.com/user-attachments/assets/f7ef2da9-b140-4ac8-aeaa-fc5623c6ef3c)
+![](https://github.com/user-attachments/assets/9a4c6e99-25cd-49b8-99fd-8bbe3be9a72a)
 
 ## Installation
 
@@ -90,6 +90,26 @@ $ qrev apply --if-modified
 No SQL file to run
 
 $ qrev status
+Oct 12 15:40 done a0a22c9 001.sql
+Oct 12 15:40 done 45fb14e 002.sql
+Oct 12 15:40 done e8d881b 003.sql
+
+$ echo 'SELECT now' > 004.sql
+$ qrev apply
+│ SQL logic error: no such function: now (1)
+qrev: error: SQL fails
+
+$ qrev status
+Oct 12 15:43 fail 8ac4c8a 004.sql
+Oct 12 15:40 done a0a22c9 001.sql
+Oct 12 15:40 done 45fb14e 002.sql
+Oct 12 15:40 done e8d881b 003.sql
+
+$ qrev mark skip 004.sql
+skip 004.sql
+
+$ qrev status
+Oct 12 15:43 skip 8ac4c8a 004.sql
 Oct 12 15:40 done a0a22c9 001.sql
 Oct 12 15:40 done 45fb14e 002.sql
 Oct 12 15:40 done e8d881b 003.sql

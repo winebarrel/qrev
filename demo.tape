@@ -58,4 +58,24 @@ Sleep 4s
 
 Type "qrev status" Sleep 500ms Enter Sleep 10ms Enter
 
+Sleep 4s
+
+Type "echo 'SELECT now' > 004.sql" Sleep 100ms Enter Sleep 10ms Enter
+
+Sleep 4s
+
+Type "qrev apply" Sleep 500ms Enter Sleep 10ms Enter
+
+Sleep 4s
+
+Type "qrev status" Sleep 500ms Enter Sleep 10ms Enter
+
+Sleep 4s
+
+Type "qrev mark skip 004.sql" Sleep 500ms Enter Sleep 10ms Enter
+
+Sleep 4s
+
+Type "qrev status" Sleep 100ms Enter
+
 Sleep 10s
