@@ -46,7 +46,7 @@ Commands:
 Run "qrev <command> --help" for more information on a command.
 ```
 
-```
+```sh
 $ echo 'SELECT 1' > 001.sql
 $ echo 'SELECT now()' > 002.sql
 $ echo 'SELECT CURRENT_DATE' > 003.sql
