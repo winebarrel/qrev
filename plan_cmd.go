@@ -7,6 +7,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/fatih/color"
+	"github.com/winebarrel/psqlfmt"
 	"github.com/winebarrel/qrev/util"
 )
 
@@ -14,6 +15,7 @@ type PlanCmd struct {
 	Path       string `arg:"" default:"*.sql" help:"Path of SQL files to run."`
 	IfModified bool   `xor:"status" help:"Run if file has modified"`
 	ForceRerun bool   `xor:"status" help:"Rerun any failed SQL files."`
+	CheckPsql  bool   `help:"Check PostgreSQL SQL syntax."`
 }
 
 func (cmd *PlanCmd) Run(options *Options) error {
@@ -48,6 +50,22 @@ func (cmd *PlanCmd) Run(options *Options) error {
 
 	if err != nil {
 		return err
+	}
+
+	if cmd.CheckPsql {
+		for _, f := range targets {
+			q, err := f.Read()
+
+			if err != nil {
+				return fmt.Errorf("failed to read: %s: %w", f.Path, err)
+			}
+
+			_, err = psqlfmt.Format(q)
+
+			if err != nil {
+				return fmt.Errorf("syntax error: %s: %w", f.Path, err)
+			}
+		}
 	}
 
 	if len(targets) == 0 {
