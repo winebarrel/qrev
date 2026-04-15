@@ -3,7 +3,8 @@ before:
   hooks:
     - go mod tidy
 builds:
-  - id: darwin-amd64
+  - &build
+    id: darwin-amd64
     main: ./cmd/qrev
     env:
       - CGO_ENABLED=1
@@ -11,46 +12,32 @@ builds:
       - CXX=o64-clang++
     ldflags:
       - -X main.version={{.Version}}
-    goos:
-      - darwin
-    goarch:
-      - amd64
-  - id: darwin-arm64
-    main: ./cmd/qrev
+    goos: [darwin]
+    goarch: [amd64]
+  - <<: *build
+    id: darwin-arm64
     env:
       - CGO_ENABLED=1
       - CC=oa64-clang
       - CXX=oa64-clang++
-    ldflags:
-      - -X main.version={{.Version}}
-    goos:
-      - darwin
-    goarch:
-      - arm64
-  - id: linux-amd64
-    main: ./cmd/qrev
+    goos: [darwin]
+    goarch: [arm64]
+  - <<: *build
+    id: linux-amd64
     env:
       - CGO_ENABLED=1
       - CC=x86_64-linux-gnu-gcc
       - CXX=x86_64-linux-gnu-g++
-    ldflags:
-      - -X main.version={{.Version}}
-    goos:
-      - linux
-    goarch:
-      - amd64
-  - id: linux-arm64
-    main: ./cmd/qrev
+    goos: [linux]
+    goarch: [amd64]
+  - <<: *build
+    id: linux-arm64
     env:
       - CGO_ENABLED=1
       - CC=aarch64-linux-gnu-gcc
       - CXX=aarch64-linux-gnu-g++
-    ldflags:
-      - -X main.version={{.Version}}
-    goos:
-      - linux
-    goarch:
-      - arm64
+    goos: [linux]
+    goarch: [arm64]
 checksum:
   name_template: "checksums.txt"
 homebrew_casks:
