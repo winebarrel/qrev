@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 env:
-  GOLANG_CROSS_VERSION: v1.25.9
+  GOLANG_CROSS_VERSION: v1.26.0
 
 jobs:
   release:
