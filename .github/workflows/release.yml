@@ -24,8 +24,8 @@ jobs:
             --rm \
             -e CGO_ENABLED=1 \
             -e GITHUB_TOKEN \
-            -v "$GITHUB_WORKSPACE:/go/src/github.com/winebarrel/qrev" \
-            -w /go/src/github.com/winebarrel/qrev \
+            -v "$GITHUB_WORKSPACE:/src" \
+            -w /src \
             ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
             release --clean
         env:
