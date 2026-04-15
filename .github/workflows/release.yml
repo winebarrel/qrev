@@ -25,7 +25,7 @@ jobs:
             -e CGO_ENABLED=1 \
             -e GITHUB_TOKEN \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v $(pwd):/go/src/github.com/winebarrel/qrev \
+            -v "$GITHUB_WORKSPACE:/go/src/github.com/winebarrel/qrev" \
             -w /go/src/github.com/winebarrel/qrev \
             ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
             release --clean
