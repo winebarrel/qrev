@@ -7,6 +7,9 @@ on:
 permissions:
   contents: write
 
+env:
+  GOLANG_CROSS_VERSION: v1.26.0
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -15,15 +18,15 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-      - name: Set up Go
-        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
-        with:
-          go-version-file: go.mod
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
-        with:
-          distribution: goreleaser
-          version: "~> v2"
-          args: release --clean
+        run: |
+          docker run \
+            --rm \
+            -e CGO_ENABLED=1 \
+            -e GITHUB_TOKEN \
+            -v "$GITHUB_WORKSPACE:/src" \
+            -w /src \
+            ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
+            release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
