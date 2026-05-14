@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.6.23
 	github.com/creack/pty v1.1.24
 	github.com/fatih/color v1.19.0
-	github.com/go-sql-driver/mysql v1.9.3
+	github.com/go-sql-driver/mysql v1.10.0
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/mattn/go-isatty v0.0.22
 	github.com/stretchr/testify v1.11.1
@@ -18,7 +18,7 @@ require (
 )
 
 require (
-	filippo.io/edwards25519 v1.1.1 // indirect
+	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.41.7 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.16 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.23 // indirect
