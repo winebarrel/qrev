@@ -11,7 +11,7 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/jackc/pgx/v5 v5.9.2
-	github.com/mattn/go-isatty v0.0.21
+	github.com/mattn/go-isatty v0.0.22
 	github.com/stretchr/testify v1.11.1
 	github.com/winebarrel/psqlfmt v0.3.1
 	modernc.org/sqlite v1.48.2
