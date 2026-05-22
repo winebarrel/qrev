@@ -18,7 +18,7 @@ type ApplyCmd struct {
 	IfModified bool   `xor:"status" help:"Run if file has modified"`
 	ForceRerun bool   `xor:"status" help:"Rerun any failed SQL files."`
 	BeforeSQL  string `help:"SQL statements to execute before applying."`
-	Exclude    string `help:"Glob for filenames to exclude from SQL files."`
+	Exclude    string `env:"QREV_EXCLUDE" help:"Glob for filenames to exclude from SQL files."`
 }
 
 func (cmd *ApplyCmd) Run(options *Options) error {
