@@ -16,7 +16,7 @@ type PlanCmd struct {
 	IfModified bool   `xor:"status" help:"Run if file has modified"`
 	ForceRerun bool   `xor:"status" help:"Rerun any failed SQL files."`
 	CheckPsql  bool   `help:"Check PostgreSQL SQL syntax."`
-	Exclude    string `help:"Glob for filenames to exclude from SQL files."`
+	Exclude    string `env:"QREV_EXCLUDE" help:"Glob for filenames to exclude from SQL files."`
 }
 
 func (cmd *PlanCmd) Run(options *Options) error {
