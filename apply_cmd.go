@@ -18,6 +18,7 @@ type ApplyCmd struct {
 	IfModified bool   `xor:"status" help:"Run if file has modified"`
 	ForceRerun bool   `xor:"status" help:"Rerun any failed SQL files."`
 	BeforeSQL  string `help:"SQL statements to execute before applying."`
+	Exclude    string `help:"Glob for filenames to exclude from SQL files."`
 }
 
 func (cmd *ApplyCmd) Run(options *Options) error {
@@ -25,6 +26,18 @@ func (cmd *ApplyCmd) Run(options *Options) error {
 
 	if err != nil {
 		return err
+	}
+
+	if cmd.Exclude != "" {
+		newPaths := []string{}
+
+		for _, f := range paths {
+			if m, _ := filepath.Match(cmd.Exclude, f); !m {
+				newPaths = append(newPaths, f)
+			}
+		}
+
+		paths = newPaths
 	}
 
 	if len(paths) == 0 {

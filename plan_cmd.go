@@ -16,6 +16,7 @@ type PlanCmd struct {
 	IfModified bool   `xor:"status" help:"Run if file has modified"`
 	ForceRerun bool   `xor:"status" help:"Rerun any failed SQL files."`
 	CheckPsql  bool   `help:"Check PostgreSQL SQL syntax."`
+	Exclude    string `help:"Glob for filenames to exclude from SQL files."`
 }
 
 func (cmd *PlanCmd) Run(options *Options) error {
@@ -23,6 +24,18 @@ func (cmd *PlanCmd) Run(options *Options) error {
 
 	if err != nil {
 		return err
+	}
+
+	if cmd.Exclude != "" {
+		newPaths := []string{}
+
+		for _, f := range paths {
+			if m, _ := filepath.Match(cmd.Exclude, f); !m {
+				newPaths = append(newPaths, f)
+			}
+		}
+
+		paths = newPaths
 	}
 
 	if len(paths) == 0 {

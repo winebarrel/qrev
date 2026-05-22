@@ -536,3 +536,43 @@ func TestApplyCmd_Rollback(t *testing.T) {
 	require.NoError(err)
 	assert.Equal("1,2,3", ids)
 }
+
+func TestApplyCmd_WithExclude(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	init := "insert into qrev_history (filename, hash, executed_at, execution_time, status, last_error) values " +
+		" ('20251010-init-table.sql',      '123abc456', '2025-10-10T12:23:00Z', 1, 'done', '')" +
+		",('20251011-update-data.sql',     'c123ab567', '2025-10-10T11:20:00Z', 2, 'skip', '')" +
+		",('20251012-delete-old-data.sql', 'bc123a678', '2025-10-10T12:25:00Z', 3, 'fail', 'error:' || char(10) || 'test.go:10' || char(10))"
+	dri := testDB(t, init)
+
+	tempDir := t.TempDir()
+	t.Chdir(tempDir)
+	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
+	os.WriteFile("20251011-update-data.sql", []byte("select 2"), 0400)
+	os.WriteFile("20251012-delete-old-data.sql", []byte("select 3"), 0400)
+	os.WriteFile("20251013-new.sql", []byte("select 4"), 0400)
+	os.WriteFile("20251013-new2.sql", []byte("select 5"), 0400)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: dri, Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.ApplyCmd{
+		Path:      "*.sql",
+		BeforeSQL: "create table before_sql1 (id int) ; create table before_sql2 (id int)",
+		Exclude:   "*-new.sql",
+	}
+	err := cmd.Run(options)
+
+	require.NoError(err)
+	assert.Equal(`done 20251013-new2.sql select 5
+`, buf.String())
+
+	assert.Equal([]string{
+		"20251010-init-table.sql 123abc456 done ",
+		"20251011-update-data.sql c123ab567 skip ",
+		"20251012-delete-old-data.sql bc123a678 fail error:\ntest.go:10\n",
+		"20251013-new2.sql 67d40ba57947424e5893c5b1b986c2b21ae79c15a49e60db9aa570a371e830b5 done ",
+	}, testDumpDBWithoutTime(t, dri))
+}
