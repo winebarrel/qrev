@@ -5,6 +5,10 @@ all: vet test build
 build:
 	go build ./cmd/qrev
 
+.PHONY: install
+install:
+	go install ./cmd/qrev
+
 .PHONY: vet
 vet:
 	go vet ./...

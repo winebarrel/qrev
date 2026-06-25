@@ -95,6 +95,7 @@ func apply(db *sql.DB, f *util.File, beforeSQL string, options *Options) error {
 	}
 
 	now := time.Now()
+	var dur time.Duration
 
 	err = util.WithTx(db, options.Timeout, func(ctx context.Context, tx *sql.Tx) error {
 		if beforeSQL != "" {
@@ -105,8 +106,9 @@ func apply(db *sql.DB, f *util.File, beforeSQL string, options *Options) error {
 			}
 		}
 
+		start := time.Now()
 		_, err := tx.ExecContext(ctx, q)
-		dur := time.Since(now)
+		dur = time.Since(start)
 
 		if err != nil {
 			return &sqlErr{error: err}
@@ -135,7 +137,7 @@ func apply(db *sql.DB, f *util.File, beforeSQL string, options *Options) error {
 		return errors.New("SQL fails")
 	}
 
-	fmt.Fprintln(options.Output, StatusDone.Color(), f.Name, util.HeadContent(q))
+	fmt.Fprintln(options.Output, StatusDone.Color(), f.Name, dur, util.HeadContent(q))
 	return nil
 }
 
