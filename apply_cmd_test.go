@@ -50,7 +50,7 @@ func TestApplyCmd_NewFile(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`done 20251013-new.sql select 4
+	assert.Regexp(`done 20251013-new\.sql [\d.]+[µm]s select 4
 `, buf.String())
 
 	assert.Equal([]string{
@@ -85,8 +85,8 @@ func TestApplyCmd_WithEditFile(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`done 20251012-delete-old-data.sql select 3
-done 20251013-new.sql select 4
+	assert.Regexp(`done 20251012-delete-old-data\.sql [\d.]+[µm]s select 3
+done 20251013-new\.sql [\d.]+[µm]s select 4
 `, buf.String())
 
 	assert.Equal([]string{
@@ -121,7 +121,7 @@ func TestApplyCmd_WithoutEditFile(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`done 20251013-new.sql select 4
+	assert.Regexp(`done 20251013-new\.sql [\d.]+[µm]s select 4
 `, buf.String())
 
 	assert.Equal([]string{
@@ -156,8 +156,8 @@ func TestApplyCmd_ForceRerun(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`done 20251012-delete-old-data.sql select 3
-done 20251013-new.sql select 4
+	assert.Regexp(`done 20251012-delete-old-data\.sql [\d.]+[µm]s select 3
+done 20251013-new\.sql [\d.]+[µm]s select 4
 `, buf.String())
 
 	assert.Equal([]string{
@@ -293,9 +293,9 @@ func TestApplyCmd_Fail_WithNewAndEditFile(t *testing.T) {
 	err := cmd.Run(options)
 
 	assert.ErrorContains(err, "SQL fails")
-	assert.Equal(`done 20251009-new.sql select 4
-fail 20251012-delete-old-data.sql **invalid**
-│ SQL logic error: near "*": syntax error (1)
+	assert.Regexp(`done 20251009-new\.sql [\d.]+[µm]s select 4
+fail 20251012-delete-old-data\.sql \*\*invalid\*\*
+│ SQL logic error: near "\*": syntax error \(1\)
 `, buf.String())
 
 	assert.Equal([]string{
@@ -359,10 +359,10 @@ func TestApplyCmd_WithErr(t *testing.T) {
 
 	assert.ErrorContains(err, "SQL fails")
 
-	assert.Equal(`done 20251010-create-table.sql create table foo (id int not n
-done 20251011-insert-data-001.sql insert into foo values (1)
-fail 20251012-insert-data-002.sql insert into foo values (2); in
-│ constraint failed: NOT NULL constraint failed: foo.id (1299)
+	assert.Regexp(`done 20251010-create-table\.sql [\d.]+[µm]s create table foo \(id int not n
+done 20251011-insert-data-001\.sql [\d.]+[µm]s insert into foo values \(1\)
+fail 20251012-insert-data-002\.sql insert into foo values \(2\); in
+│ constraint failed: NOT NULL constraint failed: foo\.id \(1299\)
 `, buf.String())
 
 	assert.Equal([]string{
@@ -404,7 +404,7 @@ func TestApplyCmd_Symlink(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`done 20251013-symlink.sql select 1
+	assert.Regexp(`done 20251013-symlink\.sql [\d.]+[µm]s select 1
 `, buf.String())
 
 	assert.Equal([]string{
@@ -442,7 +442,7 @@ func TestApplyCmd_WithBeforeSQL(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`done 20251013-new.sql select 4
+	assert.Regexp(`done 20251013-new\.sql [\d.]+[µm]s select 4
 `, buf.String())
 
 	assert.Equal([]string{
@@ -566,7 +566,7 @@ func TestApplyCmd_WithExclude(t *testing.T) {
 	err := cmd.Run(options)
 
 	require.NoError(err)
-	assert.Equal(`done 20251013-new2.sql select 5
+	assert.Regexp(`done 20251013-new2\.sql [\d.]+[µm]s select 5
 `, buf.String())
 
 	assert.Equal([]string{
