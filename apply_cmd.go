@@ -94,6 +94,7 @@ func apply(db *sql.DB, f *util.File, beforeSQL string, options *Options) error {
 		return fmt.Errorf("failed to read: %s: %w", f.Path, err)
 	}
 
+	now := time.Now()
 	var dur time.Duration
 
 	err = util.WithTx(db, options.Timeout, func(ctx context.Context, tx *sql.Tx) error {
@@ -105,9 +106,9 @@ func apply(db *sql.DB, f *util.File, beforeSQL string, options *Options) error {
 			}
 		}
 
-		now := time.Now()
+		start := time.Now()
 		_, err := tx.ExecContext(ctx, q)
-		dur = time.Since(now)
+		dur = time.Since(start)
 
 		if err != nil {
 			return &sqlErr{error: err}
