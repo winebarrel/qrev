@@ -61,10 +61,10 @@ func TestAcc_MySQL(t *testing.T) {
 		},
 		{
 			cmd: &qrev.ApplyCmd{Path: "*.sql"},
-			expected: `done 20251010-init-table.sql select 1
-done 20251011-update-data.sql select 2
-done 20251012-delete-old-data.sql select 3
-`,
+			regexp: regexp.MustCompile(`done 20251010-init-table\.sql [\d.]+[µm]s select 1
+done 20251011-update-data\.sql [\d.]+[µm]s select 2
+done 20251012-delete-old-data\.sql [\d.]+[µm]s select 3
+`),
 		},
 		{
 			cmd:      &qrev.PlanCmd{Path: "*.sql"},
