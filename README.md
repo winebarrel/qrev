@@ -1,7 +1,6 @@
 # qrev
 
 [![test](https://github.com/winebarrel/qrev/actions/workflows/test.yml/badge.svg)](https://github.com/winebarrel/qrev/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/winebarrel/qrev)](https://goreportcard.com/report/github.com/winebarrel/qrev)
 
 qrev is a SQL execution history management tool.
 
