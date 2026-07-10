@@ -118,3 +118,9 @@ Oct 12 15:40 done e8d881b 003.sql
 
 * MySQL: https://pkg.go.dev/github.com/go-sql-driver/mysql#readme-dsn-data-source-name
 * PostgreSQL: https://pkg.go.dev/github.com/jackc/pgx/v5/stdlib#pkg-overview
+
+## Related projects
+
+* [ridgepole](https://github.com/ridgepole/ridgepole)
+* [pistachio](https://github.com/winebarrel/pistachio)
+* [myschema](https://github.com/winebarrel/myschema)
