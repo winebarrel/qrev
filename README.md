@@ -122,4 +122,5 @@ Oct 12 15:40 done e8d881b 003.sql
 ## Related projects
 
 * [ridgepole](https://github.com/ridgepole/ridgepole)
+* [pistachio](https://github.com/winebarrel/pistachio)
 * [myschema](https://github.com/winebarrel/myschema)
