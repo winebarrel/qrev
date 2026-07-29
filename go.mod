@@ -14,7 +14,7 @@ require (
 	github.com/mattn/go-isatty v0.0.24
 	github.com/stretchr/testify v1.11.1
 	github.com/winebarrel/psqlfmt v0.3.1
-	modernc.org/sqlite v1.54.0
+	modernc.org/sqlite v1.55.0
 )
 
 require (
