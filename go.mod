@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/alecthomas/kong v1.16.1
 	github.com/aws/aws-sdk-go-v2/config v1.32.37
-	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.6.36
+	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.6.37
 	github.com/creack/pty v1.1.24
 	github.com/fatih/color v1.19.0
 	github.com/go-sql-driver/mysql v1.10.0
