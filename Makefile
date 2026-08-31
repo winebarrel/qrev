@@ -1,3 +1,5 @@
+TEST_OPTS ?=
+
 .PHONY: all
 all: vet test build
 
@@ -15,7 +17,7 @@ vet:
 
 .PHONY: test
 test:
-	go test -v -count=1 ./...
+	go test -v -count=1 $(TEST_OPTS) ./...
 
 .PHONY: testacc
 testacc:

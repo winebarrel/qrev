@@ -104,3 +104,20 @@ func testDumpDB0(t *testing.T, dri driver.Driver, withTime bool) []string {
 
 	return output
 }
+
+// testBrokenDriver fails to open, for the paths that report a connection that
+// could not be established.
+func testBrokenDriver() driver.Driver {
+	return &driver.MySQL{DSN: "not a dsn"}
+}
+
+// testDBWithViewTable backs qrev_history with a view, which reads like the real
+// table but rejects every write.
+func testDBWithViewTable(t *testing.T, rows ...string) driver.Driver {
+	t.Helper()
+	initSQLs := []string{strings.Replace(qrev.CreateTableSQL, qrev.HistoryTable, "qrev_history_src", 1)}
+	initSQLs = append(initSQLs, rows...)
+	initSQLs = append(initSQLs, "CREATE VIEW "+qrev.HistoryTable+" AS SELECT * FROM qrev_history_src")
+
+	return testDBWithoutTable(t, initSQLs...)
+}

@@ -31,3 +31,23 @@ func TestHash(t *testing.T) {
 		assert.Equal(test.expect, hash)
 	}
 }
+
+func TestHash_NotExist(t *testing.T) {
+	assert := assert.New(t)
+
+	_, err := util.Hash(filepath.Join(t.TempDir(), "not-exist.sql"))
+
+	assert.ErrorIs(err, os.ErrNotExist)
+}
+
+func TestHash_NotAFile(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	dir := filepath.Join(t.TempDir(), "dir.sql")
+	require.NoError(os.Mkdir(dir, 0700))
+
+	_, err := util.Hash(dir)
+
+	assert.ErrorContains(err, "is a directory")
+}

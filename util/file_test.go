@@ -99,3 +99,29 @@ func TestFile_Head(t *testing.T) {
 		assert.Equal(test.expected, b)
 	}
 }
+
+func TestPathsToFiles_Err(t *testing.T) {
+	assert := assert.New(t)
+
+	_, err := util.PathsToFiles([]string{"not-exist.sql"})
+
+	assert.ErrorContains(err, "failed to calculate hash: not-exist.sql:")
+}
+
+func TestFile_Read_Err(t *testing.T) {
+	assert := assert.New(t)
+
+	f := &util.File{Path: "not-exist.sql"}
+	_, err := f.Read()
+
+	assert.ErrorIs(err, os.ErrNotExist)
+}
+
+func TestFile_Head_Err(t *testing.T) {
+	assert := assert.New(t)
+
+	f := &util.File{Path: "not-exist.sql"}
+	_, err := f.Head()
+
+	assert.ErrorIs(err, os.ErrNotExist)
+}
