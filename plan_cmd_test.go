@@ -3,6 +3,7 @@ package qrev_test
 import (
 	"bytes"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -320,4 +321,77 @@ func TestPlanCmd_WithExclude(t *testing.T) {
 		"20251011-update-data.sql c123ab567 2025-10-10T11:20:00Z 2 skip ",
 		"20251012-delete-old-data.sql bc123a678 2025-10-10T12:25:00Z 3 fail error:\ntest.go:10\n",
 	}, testDumpDB(t, dri))
+}
+
+func TestPlanCmd_BadPath(t *testing.T) {
+	assert := assert.New(t)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDB(t), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.PlanCmd{Path: "["}
+	err := cmd.Run(options)
+
+	assert.ErrorIs(err, filepath.ErrBadPattern)
+}
+
+func TestPlanCmd_HashErr(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	t.Chdir(t.TempDir())
+	require.NoError(os.Mkdir("dir.sql", 0700))
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDB(t), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.PlanCmd{Path: "*.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "failed to calculate hash: dir.sql:")
+}
+
+func TestPlanCmd_OpenErr(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Chdir(t.TempDir())
+	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testBrokenDriver(), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.PlanCmd{Path: "*.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "invalid DSN")
+}
+
+func TestPlanCmd_PlanErr(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Chdir(t.TempDir())
+	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDBWithoutTable(t), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.PlanCmd{Path: "*.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "failed to fetch SQL history: SQL logic error: no such table: qrev_history")
+}
+
+func TestPlanCmd_EmptyFile(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Chdir(t.TempDir())
+	os.WriteFile("20251010-init-table.sql", []byte(""), 0400)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDB(t), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.PlanCmd{Path: "*.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "file is empty: 20251010-init-table.sql")
 }

@@ -152,3 +152,45 @@ func TestStatusCmd_WithFilename(t *testing.T) {
 		assert.Equal(test.expected, buf.String())
 	}
 }
+
+func TestStatusCmd_OpenErr(t *testing.T) {
+	assert := assert.New(t)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testBrokenDriver(), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.StatusCmd{}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "invalid DSN")
+}
+
+func TestStatusCmd_FetchErr(t *testing.T) {
+	assert := assert.New(t)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDBWithoutTable(t), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.StatusCmd{}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "failed to fetch SQL history: SQL logic error: no such table: qrev_history")
+}
+
+func TestStatusCmd_ScanErr(t *testing.T) {
+	assert := assert.New(t)
+
+	// hash is NULL, which does not scan into a string.
+	init := []string{
+		"CREATE TABLE qrev_history (filename VARCHAR(255), hash VARCHAR(255), executed_at VARCHAR(255), execution_time INTEGER, status VARCHAR(255), last_error TEXT)",
+		"insert into qrev_history values ('20251010-init-table.sql', NULL, '2025-10-10T12:23:00Z', 1, 'done', '')",
+	}
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDBWithoutTable(t, init...), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.StatusCmd{}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "failed to scan row:")
+}

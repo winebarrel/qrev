@@ -81,3 +81,18 @@ func TestWithTx_Timeout(t *testing.T) {
 	require.NoError(err)
 	assert.Equal(0, n)
 }
+
+func TestWithTx_CommitErr(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	db, err := sql.Open("sqlite", "file::memory:")
+	require.NoError(err)
+	defer db.Close()
+
+	err = util.WithTx(db, 10*time.Minute, func(ctx context.Context, tx *sql.Tx) error {
+		return tx.Rollback()
+	})
+
+	assert.ErrorContains(err, "failed to commit: sql: transaction has already been committed or rolled back")
+}

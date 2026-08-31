@@ -3,6 +3,7 @@ package driver_test
 import (
 	"bytes"
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -202,4 +203,81 @@ func TestAcc_MySQLLock_SubSecondWait(t *testing.T) {
 	assert.ErrorIs(err, driver.ErrLocked)
 	assert.ErrorContains(err, "gave up after 1s")
 	assert.GreaterOrEqual(time.Since(start), 1*time.Second)
+}
+
+func TestMySQLLock_ConnErr(t *testing.T) {
+	assert := assert.New(t)
+
+	// Port 1 is closed, so Open succeeds and taking the lock session fails.
+	dri := &driver.MySQL{DSN: "root@tcp(127.0.0.1:1)/qrev"}
+	_, err := dri.Lock(context.Background(), &driver.LockOptions{})
+
+	assert.ErrorContains(err, "connection refused")
+}
+
+func TestPostgreSQLLock_ConnErr(t *testing.T) {
+	assert := assert.New(t)
+
+	dri := &driver.PostgreSQL{DSN: "postgres://postgres@127.0.0.1:1/qrev"}
+	_, err := dri.Lock(context.Background(), &driver.LockOptions{})
+
+	assert.ErrorContains(err, "connection refused")
+}
+
+func TestMySQLLock_OpenErr(t *testing.T) {
+	assert := assert.New(t)
+
+	dri := &driver.MySQL{DSN: "not a dsn"}
+	_, err := dri.Lock(context.Background(), &driver.LockOptions{})
+
+	assert.ErrorContains(err, "invalid DSN")
+}
+
+func TestSQLiteLock_OpenErr(t *testing.T) {
+	assert := assert.New(t)
+
+	dri := &driver.SQLite{DSN: "file:" + filepath.Join(t.TempDir(), "not-exist", "test.db")}
+	_, err := dri.Lock(context.Background(), &driver.LockOptions{})
+
+	assert.ErrorIs(err, os.ErrNotExist)
+}
+
+func TestSQLiteLock_BadDSN(t *testing.T) {
+	assert := assert.New(t)
+
+	dri := &driver.SQLite{DSN: "file:test\x7f.db"}
+	_, err := dri.Lock(context.Background(), &driver.LockOptions{})
+
+	assert.ErrorContains(err, "invalid control character in URL")
+}
+
+func TestSQLiteLock_WaitCanceled(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	dri := &driver.SQLite{DSN: "file:" + filepath.Join(t.TempDir(), "test.db")}
+	held, err := dri.Lock(context.Background(), &driver.LockOptions{})
+	require.NoError(err)
+	defer held.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go func() {
+		time.Sleep(200 * time.Millisecond)
+		cancel()
+	}()
+
+	// Zero waits without limit, so only the caller's context ends the wait.
+	_, err = dri.Lock(ctx, &driver.LockOptions{Wait: testLockDuration(0)})
+
+	assert.ErrorIs(err, context.Canceled)
+}
+
+func TestSQLiteLock_BadEscape(t *testing.T) {
+	assert := assert.New(t)
+
+	dri := &driver.SQLite{DSN: "file:%zz"}
+	_, err := dri.Lock(context.Background(), &driver.LockOptions{})
+
+	assert.ErrorContains(err, `invalid URL escape "%zz"`)
 }

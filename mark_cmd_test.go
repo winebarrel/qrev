@@ -185,3 +185,42 @@ func TestMarkCmd_Timeout(t *testing.T) {
 		"20251012-delete-old-data.sql bc123a678 2025-10-10T12:25:00Z 3 fail error:\ntest.go:10\n",
 	}, testDumpDB(t, dri))
 }
+
+func TestMarkCmd_OpenErr(t *testing.T) {
+	assert := assert.New(t)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testBrokenDriver(), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.MarkCmd{Status: qrev.StatusSkip, Name: "20251010-init-table.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "invalid DSN")
+}
+
+func TestMarkCmd_FetchErr(t *testing.T) {
+	assert := assert.New(t)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDBWithoutTable(t), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.MarkCmd{Status: qrev.StatusSkip, Name: "20251010-init-table.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "failed to fetch SQL history: SQL logic error: no such table: qrev_history")
+}
+
+func TestMarkCmd_UpdateErr(t *testing.T) {
+	assert := assert.New(t)
+
+	row := "insert into qrev_history_src (filename, hash, executed_at, execution_time, status, last_error) values " +
+		"('20251010-init-table.sql', '123abc456', '2025-10-10T12:23:00Z', 1, 'fail', '')"
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDBWithViewTable(t, row), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.MarkCmd{Status: qrev.StatusSkip, Name: "20251010-init-table.sql"}
+	err := cmd.Run(options)
+
+	assert.ErrorContains(err, "failed to mark skip:")
+}
