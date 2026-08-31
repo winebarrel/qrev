@@ -119,6 +119,33 @@ Oct 12 15:40 done e8d881b 003.sql
 * MySQL: https://pkg.go.dev/github.com/go-sql-driver/mysql#readme-dsn-data-source-name
 * PostgreSQL: https://pkg.go.dev/github.com/jackc/pgx/v5/stdlib#pkg-overview
 
+### Preventing concurrent applies
+
+Two `qrev apply` runs on one database can plan from each other's half-finished
+state and run the same SQL file twice. `--exclusive` prevents that:
+
+```sh
+$ qrev apply --exclusive
+qrev: error: another qrev apply is running (--exclusive-wait waits for it)
+```
+
+`--exclusive-wait` waits instead of failing (`0` waits without limit):
+
+```sh
+$ qrev apply --exclusive-wait 5m
+Waiting for another qrev apply to finish
+done 001.sql 1.2ms SELECT 1
+```
+
+The lock is taken before the history is read and released when the run ends.
+It is per database and opt-in: an `apply` without the flag is not excluded.
+
+| DSN | Lock |
+| --- | --- |
+| MySQL | `GET_LOCK()`. The wait is rounded up to whole seconds. |
+| PostgreSQL | `pg_advisory_lock()`. |
+| SQLite | `flock(2)` on a `.qrev-lock` file next to the database. |
+
 ## Related projects
 
 * [ridgepole](https://github.com/ridgepole/ridgepole)
