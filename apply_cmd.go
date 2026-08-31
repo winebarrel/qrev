@@ -5,11 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"path/filepath"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
 
+	"github.com/winebarrel/qrev/driver"
 	"github.com/winebarrel/qrev/util"
 )
 
@@ -19,6 +21,9 @@ type ApplyCmd struct {
 	ForceRerun bool   `xor:"status" help:"Rerun any failed SQL files."`
 	BeforeSQL  string `help:"SQL statements to execute before applying."`
 	Exclude    string `env:"QREV_EXCLUDE" help:"Glob for filenames to exclude from SQL files."`
+	Exclusive  bool   `xor:"exclusive" env:"QREV_EXCLUSIVE" help:"Fail if another exclusive apply is running on the database."`
+	// A pointer because 0 is a valid value (wait without limit).
+	ExclusiveWait *UnsignedDuration `xor:"exclusive" env:"QREV_EXCLUSIVE_WAIT" placeholder:"DURATION" help:"Like --exclusive, but wait up to DURATION for the other apply to finish (0 waits without limit)."`
 }
 
 func (cmd *ApplyCmd) Run(options *Options) error {
@@ -58,6 +63,18 @@ func (cmd *ApplyCmd) Run(options *Options) error {
 
 	defer db.Close()
 
+	// Take the lock before the history is read, so the plan below cannot come
+	// from a state another apply is still changing.
+	if cmd.Exclusive || cmd.ExclusiveWait != nil {
+		lock, err := cmd.lock(options)
+
+		if err != nil {
+			return err
+		}
+
+		defer lock.Close()
+	}
+
 	targets, err := plan(db, files, &planOptions{
 		ifModified: cmd.IfModified,
 		forceRerun: cmd.ForceRerun,
@@ -81,6 +98,30 @@ func (cmd *ApplyCmd) Run(options *Options) error {
 	}
 
 	return nil
+}
+
+func (cmd *ApplyCmd) lock(options *Options) (io.Closer, error) {
+	var wait *time.Duration
+
+	if cmd.ExclusiveWait != nil {
+		d := time.Duration(*cmd.ExclusiveWait)
+		wait = &d
+	}
+
+	lock, err := options.Driver.Lock(context.Background(), &driver.LockOptions{
+		Wait:   wait,
+		Output: options.Output,
+	})
+
+	if err != nil {
+		if wait == nil && errors.Is(err, driver.ErrLocked) {
+			return nil, fmt.Errorf("%w (--exclusive-wait waits for it)", err)
+		}
+
+		return nil, err
+	}
+
+	return lock, nil
 }
 
 type sqlErr struct {

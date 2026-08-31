@@ -2,13 +2,16 @@ package qrev_test
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/qrev"
+	"github.com/winebarrel/qrev/driver"
 )
 
 func TestApplyCmd_NoTarget(t *testing.T) {
@@ -575,4 +578,103 @@ func TestApplyCmd_WithExclude(t *testing.T) {
 		"20251012-delete-old-data.sql bc123a678 fail error:\ntest.go:10\n",
 		"20251013-new2.sql 67d40ba57947424e5893c5b1b986c2b21ae79c15a49e60db9aa570a371e830b5 done ",
 	}, testDumpDBWithoutTime(t, dri))
+}
+
+func TestApplyCmd_Exclusive(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	dri := testDB(t)
+	t.Chdir(t.TempDir())
+	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
+
+	held, err := dri.Lock(context.Background(), &driver.LockOptions{})
+	require.NoError(err)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: dri, Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.ApplyCmd{Path: "*.sql", Exclusive: true}
+	err = cmd.Run(options)
+
+	assert.ErrorContains(err, "another qrev apply is running (--exclusive-wait waits for it)")
+	assert.Empty(buf.String())
+	assert.Empty(testDumpDB(t, dri))
+
+	// The apply goes through once the other one has finished.
+	require.NoError(held.Close())
+	require.NoError(cmd.Run(options))
+	assert.Regexp(`done 20251010-init-table\.sql `, buf.String())
+}
+
+func TestApplyCmd_ExclusiveWait(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	dri := testDB(t)
+	t.Chdir(t.TempDir())
+	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
+
+	held, err := dri.Lock(context.Background(), &driver.LockOptions{})
+	require.NoError(err)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: dri, Output: &buf, Timeout: 10 * time.Minute}
+
+	wait := qrev.UnsignedDuration(300 * time.Millisecond)
+	cmd := &qrev.ApplyCmd{Path: "*.sql", ExclusiveWait: &wait}
+	err = cmd.Run(options)
+
+	assert.ErrorContains(err, "another qrev apply is running: gave up after 300ms")
+	assert.Equal("Waiting for another qrev apply to finish\n", buf.String())
+	assert.Empty(testDumpDB(t, dri))
+
+	go func() {
+		time.Sleep(200 * time.Millisecond)
+		held.Close()
+	}()
+
+	buf.Reset()
+	wait = qrev.UnsignedDuration(10 * time.Second)
+	require.NoError(cmd.Run(options))
+	assert.Regexp(`Waiting for another qrev apply to finish
+done 20251010-init-table\.sql `, buf.String())
+}
+
+func TestApplyCmd_ExclusiveFlags(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	parse := func(args ...string) (*qrev.ApplyCmd, error) {
+		var cli struct {
+			Apply qrev.ApplyCmd `cmd:""`
+		}
+
+		parser, err := kong.New(&cli)
+		require.NoError(err)
+		_, err = parser.Parse(append([]string{"apply"}, args...))
+
+		return &cli.Apply, err
+	}
+
+	cmd, err := parse("--exclusive")
+	require.NoError(err)
+	assert.True(cmd.Exclusive)
+	assert.Nil(cmd.ExclusiveWait)
+
+	cmd, err = parse("--exclusive-wait=1m")
+	require.NoError(err)
+	assert.False(cmd.Exclusive)
+	assert.Equal(qrev.UnsignedDuration(time.Minute), *cmd.ExclusiveWait)
+
+	// Zero is a wait without limit, not "not set".
+	cmd, err = parse("--exclusive-wait=0")
+	require.NoError(err)
+	assert.Equal(qrev.UnsignedDuration(0), *cmd.ExclusiveWait)
+
+	_, err = parse("--exclusive-wait=-1s")
+	assert.ErrorContains(err, "--exclusive-wait: must not be negative: -1s")
+
+	_, err = parse("--exclusive", "--exclusive-wait=1m")
+	assert.ErrorContains(err, "--exclusive and --exclusive-wait can't be used together")
 }

@@ -11,14 +11,6 @@ import (
 	"github.com/winebarrel/qrev/driver"
 )
 
-type testDriver struct {
-	dsn string
-}
-
-func (dri *testDriver) Open() (*sql.DB, error) {
-	return sql.Open("sqlite", dri.dsn)
-}
-
 func testDB(t *testing.T, initSQLs ...string) driver.Driver {
 	t.Helper()
 	initSQLs = append([]string{qrev.CreateTableSQL, qrev.CreateIndexSQL}, initSQLs...)
@@ -48,7 +40,7 @@ func testDBWithoutTable(t *testing.T, initSQLs ...string) driver.Driver {
 		}
 	}
 
-	return &testDriver{dsn: dsn}
+	return &driver.SQLite{DSN: dsn}
 }
 
 func testDumpDB(t *testing.T, dri driver.Driver) []string {
