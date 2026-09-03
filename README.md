@@ -151,4 +151,3 @@ It is per database and opt-in: an `apply` without the flag is not excluded.
 
 * [ridgepole](https://github.com/ridgepole/ridgepole)
 * [pistachio](https://github.com/winebarrel/pistachio)
-* [myschema](https://github.com/winebarrel/myschema)
