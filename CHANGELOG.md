@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [0.7.1] - 2026-10-15
+
+* Fail on a malformed `--exclude` pattern. [pull#141](https://github.com/winebarrel/qrev/pull/141)
 
 * The Homebrew cask writes the `postflight_steps` stanza instead of `postflight`, which Homebrew 7 deprecates.
 
