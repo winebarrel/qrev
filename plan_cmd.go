@@ -30,7 +30,13 @@ func (cmd *PlanCmd) Run(options *Options) error {
 		newPaths := []string{}
 
 		for _, f := range paths {
-			if m, _ := filepath.Match(cmd.Exclude, f); !m {
+			m, err := filepath.Match(cmd.Exclude, f)
+
+			if err != nil {
+				return err
+			}
+
+			if !m {
 				newPaths = append(newPaths, f)
 			}
 		}

@@ -693,6 +693,22 @@ func TestApplyCmd_BadPath(t *testing.T) {
 	assert.ErrorIs(err, filepath.ErrBadPattern)
 }
 
+func TestApplyCmd_BadExclude(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Chdir(t.TempDir())
+	os.WriteFile("20251010-init-table.sql", []byte("select 1"), 0400)
+
+	var buf bytes.Buffer
+	options := &qrev.Options{Driver: testDB(t), Output: &buf, Timeout: 10 * time.Minute}
+
+	cmd := &qrev.ApplyCmd{Path: "*.sql", Exclude: "["}
+	err := cmd.Run(options)
+
+	assert.ErrorIs(err, filepath.ErrBadPattern)
+	assert.Empty(buf.String())
+}
+
 func TestApplyCmd_HashErr(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
