@@ -4,7 +4,7 @@ go 1.27
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/alecthomas/kong v1.16.1
+	github.com/alecthomas/kong v1.17.0
 	github.com/aws/aws-sdk-go-v2/config v1.33.13
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.7.8
 	github.com/creack/pty v1.1.24
