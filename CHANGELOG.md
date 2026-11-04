@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.2] - 2026-11-04
+
+* Build with Go 1.27.3, which rejects certificate chains through the compromised eMudhra intermediate CAs (CVE-2026-111943). The fix is compiled into the binary, so upgrade from earlier releases.
+
 ## [0.7.1] - 2026-10-15
 
 * Fail on a malformed `--exclude` pattern. [pull#141](https://github.com/winebarrel/qrev/pull/141)
