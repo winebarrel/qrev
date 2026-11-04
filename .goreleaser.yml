@@ -8,6 +8,7 @@ builds:
     main: ./cmd/qrev
     env:
       - CGO_ENABLED=1
+      - MACOSX_DEPLOYMENT_TARGET=13.0
       - CC=o64-clang
       - CXX=o64-clang++
     ldflags:
@@ -18,6 +19,7 @@ builds:
     id: darwin-arm64
     env:
       - CGO_ENABLED=1
+      - MACOSX_DEPLOYMENT_TARGET=13.0
       - CC=oa64-clang
       - CXX=oa64-clang++
     goos: [darwin]
