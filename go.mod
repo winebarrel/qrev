@@ -41,7 +41,7 @@ require (
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/ncruces/go-strftime v1.1.0 // indirect
-	github.com/pganalyze/pg_query_go/v6 v6.2.2 // indirect
+	github.com/pganalyze/pg_query_go/v6 v6.2.5 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/sync v0.24.0 // indirect
