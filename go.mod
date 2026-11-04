@@ -1,6 +1,6 @@
 module github.com/winebarrel/qrev
 
-go 1.27
+go 1.27.3
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
